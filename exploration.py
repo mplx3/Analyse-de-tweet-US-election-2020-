@@ -127,6 +127,9 @@ print(summary)
 
 """# 7. Sauvegarde dans un fichier CSV"""
 
+# On combine les deux échantillons (Trump + Biden)
+df_sample = pd.concat([trump_sample, biden_sample], ignore_index=True)
+print(df_sample.head())
 df_sample.to_csv("tweets_with_sentiment.csv", index=False)
 summary.to_csv("sentiment_summary.csv", index=False)
 
