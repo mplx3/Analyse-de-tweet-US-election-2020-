@@ -63,7 +63,7 @@ df = pd.concat([trump, biden], ignore_index=True)
 print("Dataset combiné :", df.shape)
 
 #Echantillonnage car l'analyse sur tout le jeu de donnée prend trop de temps
-MAX_TWEETS = 10  # par candidat
+MAX_TWEETS = 50000  # par candidat
 
 df_sample = (
     df.groupby("candidate", group_keys=False)
