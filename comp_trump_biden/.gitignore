@@ -1,0 +1,17 @@
+# Environnements virtuels
+venv/
+.env/
+
+# Données lourdes
+data/
+results/
+
+# Cache Python
+__pycache__/
+*.pyc
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
