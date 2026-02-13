@@ -316,7 +316,7 @@ This part of the project was fully redesigned using object-oriented programming,
  **Methodology**
 The geographic analysis follows a structured pipeline composed of several steps.
 
-# 1. Location extraction*
+# Location extraction*
 
 Tweets include a user_location field provided freely by users.
 This field is highly heterogeneous and may contain:
@@ -330,7 +330,7 @@ This field is highly heterogeneous and may contain:
 - emojis or informal text.
 Because of this variability, raw locations cannot be used directly.
 
-# 2. Location cleaning and normalization*
+# Location cleaning and normalization*
 
 Locations are cleaned using a rule-based approach:
 
@@ -343,7 +343,7 @@ trimming extra spaces,
 mapping frequent cities to countries
 (e.g. “paris” → France, “london” → United Kingdom).
 
-# 3. Aggregation by geographic unit*
+# Aggregation by geographic unit*
 
 After normalization, tweets are aggregated by geographic area:
 
