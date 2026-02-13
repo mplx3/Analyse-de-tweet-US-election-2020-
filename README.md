@@ -360,13 +360,6 @@ For each geographic unit, the following metrics are computed:
 - total tweet volume,
 
 - relative dominance score.
-  
- # 4. Candidate comparison*
-To compare candidates fairly across regions, we compute a relative dominance score:
-
-- dominance = (Biden − Trump) / (Biden + Trump)
-
-This score allows us to visualize: which candidate dominates in each region, and how strong that dominance is.
 
 **Object-Oriented Design**
 
@@ -553,22 +546,97 @@ Each tweet receives:
 The part includes two types of sentiment visualization.
 
 ## 4. User Analysis
-
 **Summary**
-
 - Identifies most active accounts (number of tweets / retweets)  
 - Computes simple metrics (followers, friends, etc., when available)  
 - Can filter by candidate or hashtag
 ---
 
+Political Alignment Analysis on Twitter
+This project is a Python application designed to analyze the sentiment and political alignment of tweets about election candidates (Trump vs Biden). It transforms raw data into visual insights, identifying key influencers and time-based trends by political camp.
+
+## Project Structure
+The application is divided into three main modules to ensure easy maintenance and clear separation of responsibilities:
+main.py: The entry point of the program. It orchestrates data loading, processing, and chart generation.
+PoliticalLabeler.py: The “engine” class. It calculates alignment scores based on sentiment and candidate, aggregates data by user, and defines camp thresholds (Biden, Trump, Neutral).
+PoliticalVisualizer.py: The visualization class. It uses Seaborn and Matplotlib to generate graphical analyses (Top influencers, time-based volume, device sources).
+
+## Alignment Logic
+The alignment score is calculated according to the following rule:
+Pro-Trump: Positive sentiment about Trump OR negative sentiment about Biden.
+Pro-Biden: Positive sentiment about Biden OR negative sentiment about Trump.
+Neutral: Any tweet labeled as “neutral.”
+
+## Visualization Features
+The project automatically generates several types of charts:
+Top 10 Influencers: Identifies the accounts with the most followers in each camp.
+Time-Based Analysis: Displays tweet volume by camp with a 7-day moving average to smooth trends.
+Source Distribution: Compares the devices used (iPhone, Android, Web) by political affiliation.
+
+## Camp Management
+Users are segmented based on the statistical distribution (quantiles) of their average scores:
+Biden Camp: Bottom 40% of scores.
+Neutral Camp: Middle 20%.
+Trump Camp: Top 20% (80th percentile and above).
+
 ## 5. Trump vs Biden Comparison
+##  Project Summary
 
-**Summary**
+This project performs a **comparative analysis of Twitter sentiment** regarding **Donald Trump** and **Joe Biden** during the 2020 US Presidential Election. 
 
-- Uses sentiment scores and user data to compare both candidates  
-- Proportion of negative / neutral / positive tweets per candidate  
-- Visual difference in emotional intensity (e.g. mean sentiment over time, distributions)
+The objective is to move beyond simple tweet counts and understand the nuances of public opinion by:
+- Comparing the **distribution of sentiments** (positive, neutral, negative).
+- Analyzing the **emotional intensity** of tweets using model confidence scores.
+- Reducing bias by filtering for **unique users** (one tweet per user).
+- Highlighting key differences in public perception between the two candidates.
+
 ---
+
+##  Features
+
+* **Transformer-based Analysis:** Powered by state-of-the-art Hugging Face models.
+* **User-Centric Filtering:** Eliminates bot/spam bias by retaining only one unique tweet per user.
+* **Emotional Intensity Metric:** Uses the model's confidence score to quantify the strength of the sentiment.
+* **Data Visualization:** Automated generation of comparative charts for quick interpretation.
+* **Modular Architecture:** Clean, OOP-based Python structure.
+
+---
+
+##  Models & Methodology
+
+### Model Specifications
+- **Architecture:** RoBERTa (Transformer)
+- **Training Data:** Twitter-specific corpus (optimized for slang and social media syntax).
+- **Inference Only:** No fine-tuning required; the model is used in its pre-trained state for maximum reliability on generic Twitter data.
+
+### Process Flow
+1. **Inference:** Each unique tweet is passed through the RoBERTa pipeline.
+2. **Metrics Calculation:** - **Labels:** Negative, Neutral, Positive.
+    - **Intensity:** The probability score of the predicted label.
+3. **Comparison:** Statistical comparison of sentiment ratios between the two datasets.
+
+---
+
+ ### Dataset Notice (Important)
+
+The dataset is not included in this repository due to its large size.
+
+## How to Run
+Execute the analysis from the root directory:
+```bash
+python src/main.py
+```
+
+## Visualizations & Results
+All generated figures are saved in the results/ folder. Key outputs include:
+Sentiment Distribution: A bar chart comparing the percentage of positive, neutral, and negative feelings for each candidate.
+Emotional Intensity: A comparison of how strongly (confidence) sentiments are expressed.
+Example Visualization:
+
+<img width="828" height="601" alt="image" src="https://github.com/user-attachments/assets/b8b32b01-c55a-42cc-ae0d-98de3760f8ce" />
+
+<img width="794" height="570" alt="image" src="https://github.com/user-attachments/assets/d816371f-dd74-4ee6-bce7-1bfdd3a17a48" />
+
 
 ##  Quick Steps
 
