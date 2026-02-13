@@ -1,0 +1,1 @@
+Créer 1 dossier "raw" et y ajouter les 2 bases de données téléchargées sur Kaggle: hastag_donaldtrump.csv et hastag_joebiden.csv
