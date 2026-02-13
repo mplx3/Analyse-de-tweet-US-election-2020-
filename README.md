@@ -19,7 +19,7 @@ The goal is to start from raw CSV files of tweets and build a complete pipeline:
 - Loading and cleaning tweets  
 - Feature extraction (sentiment, user information, geography, etc.)  
 - Exploratory analysis and visualizations  
-- Notebooks to document each step of the study
+- Notebook to document each step of the study
 
 ###  Database
 
@@ -35,9 +35,6 @@ The general pipeline is:
 4. **Analyses**: Trump/Biden comparison, sentiment over time, user analysis  
 5. **Visualizations & reporting**: charts and tables to interpret the results
 
-> In the final version, insert here a diagram illustrating this pipeline, for example `docs/img/pipeline.png`.  
-> We suggest creating a `docs/img/` folder to store images for each feature.
-
 ```text
 Raw CSV → Cleaning & enrichment → Analysis modules (sentiment, comparison, users, geography) → Visualizations → Report
 ```
@@ -47,24 +44,9 @@ Raw CSV → Cleaning & enrichment → Analysis modules (sentiment, comparison, u
 - **Tweet loading & cleaning**  
 
   This part corresponds to the pre‑processing of all textual data.  
-  The notebook `01_load_clean_separate.ipynb` reads the raw CSV files (Trump and Biden tweets) and, for each tweet, applies a series of cleaning operations defined in the module `src/utils_text.py`.  
+  The Part 2 of the notebook `main.ipynb` reads the raw CSV files (Trump and Biden tweets) and, for each tweet, applies a series of cleaning operations defined in the module `src/utils_text.py`.  
   This module groups all low-level functions: URL, mention and hashtag removal, lowercasing, removal of punctuation and emojis, whitespace normalization, etc.  
   The notebook acts as an **orchestrator** (it loads data, calls functions from `utils_text.py`, and saves the result in `data/interim/`), while `utils_text.py` acts as a **reusable text toolbox**.
-
-  #### Example snippet for clarity
-
-  ```python
-  import pandas as pd
-  from src.utils_text import clean_tweet
-
-  # Load raw data
-  df = pd.read_csv("data/raw/trump_tweets.csv")
-
-  # Apply cleaning function defined in utils_text.py
-  df["clean_text"] = df["text"].apply(clean_tweet)
-
-  # Save cleaned data
-  df.to_csv("data/processed/trump_tweets_clean.csv", index=False)
   ```
 
 - **Trump vs Biden comparison**  
@@ -73,7 +55,7 @@ Raw CSV → Cleaning & enrichment → Analysis modules (sentiment, comparison, u
 
 - **Sentiment analysis**  
 
-  Computation of tweet sentiment and aggregation by candidate and time period.
+  Computation of tweet sentiment and aggregation by candidate.
 
 - **User analysis**  
 
@@ -141,7 +123,7 @@ The Trump vs Biden comparison feature uses the sentiment scores and user informa
 
 ---
 
-## 🛠 Installation Tutorial
+## Installation Tutorial
 
 This section explains how to install and quickly test the project.
 
@@ -161,11 +143,6 @@ python -m venv .venv
 ```
 
 After creating the venv, install dependencies (if needed):
-
-```bash
-pip install pandas pyarrow numpy matplotlib seaborn vaderSentiment wordcloud spacy gensim
-python -m spacy download en_core_web_sm  # download English language model for spaCy
-```
 
 Activate the environment:
 
@@ -203,11 +180,7 @@ score = analyzer.predict("I love this candidate!")
 print("Sentiment score:", score)
 ```
 
-Then run:
-
-```bash
-python quick_test.py
-```
+The run the test.
 
 If everything is correctly installed, you should see:
 
@@ -218,8 +191,7 @@ If everything is correctly installed, you should see:
 ###  Tested platforms
 
 - Windows 11 / Python 3.11 (venv)
-
-> Add other systems here if you test them (Ubuntu, macOS, etc.).
+- Google Colab with GPU T4
 
 ---
 
@@ -231,7 +203,7 @@ If everything is correctly installed, you should see:
 
 - Reads raw CSV files from `data/raw/`.  
 - Cleans text: lowercasing, removal of URLs, mentions, hashtags, emojis, punctuation, stopwords, extra spaces, etc.  
-- Saves cleaned data into `data/interim/`.  
+- Saves cleaned data into `data/clean/`.  
 
 The notebook `01_load_clean_separate.ipynb` implements a candidate‑wise loading/cleaning pipeline via the function `clean_single_candidate`.  
 This function relies on:
@@ -245,8 +217,8 @@ The result is a set of clean intermediate files (`trump_all.csv`, `trump_nort.cs
 
 Expected raw files in `data/raw/`:
 
-- `trump.csv`  
-- `biden.csv`
+- `hashtag_donaldtrump.csv`  
+- `hashtag_joebiden.csv`
 
 Minimal columns:  
 `created_at,tweet_id,tweet,likes,retweet_count,source,user_id,user_name,user_screen_name,user_description,user_join_date,user_followers_count,user_location,lat,long,city,country,continent,state,state_code,collected_at`
@@ -313,27 +285,16 @@ df_trump_all, df_trump_nort = clean_single_candidate(
 - remove strong punctuation (`: . ! ? , '`) and double spaces  
 - drop tweets with missing `user_name` or missing `user_location`
 
-**Command‑line example**
-
-```bash
-python -m src.users \
-    --input data/raw/trump_tweets.csv \
-    --output data/processed/trump_tweets_clean.csv
-```
-
 **Python example**
 
 ```python
 import pandas as pd
 from src.utils_text import clean_tweet
 
-df = pd.read_csv("data/raw/trump_tweets.csv")
+df = pd.read_csv("data/raw/hashtag_donaldtrump.csv")
 df["clean_text"] = df["text"].apply(clean_tweet)
 print(df[["text", "clean_text"]].head())
 ```
-
-> (Bonus) Add a screenshot of the DataFrame before/after cleaning, with a short caption.
-
 ---
 
 ## 2. Geographic Analysis
@@ -534,57 +495,62 @@ Despite these limitations, the geographic analysis provides valuable insight int
 
 **Summary**
 
-- Uses the sentiment analysis RoBERTa 
+Automated sentiment classification of tweets related to Trump and Biden using a pre-trained deep learning model RoBERTa.It: 
 - Computes a sentiment score for each tweet  
-- Aggregates sentiment per day and per candidate
+- Adds a sentiment and candidate column
+- Generates a sentiment summary 
 
-**Command‑line example**
+## How It Works
 
-```bash
-python -m src.sentiment \
-    --input data/processed/all_tweets_clean.csv \
-    --output outputs/sentiment_by_day.csv
-```
-
-**Python example**
+### Batch Processing Function
 
 ```python
-import pandas as pd
-from src.sentiment import SentimentAnalyzer
+torch.set_grad_enabled(False)  # Disable gradient for inference
 
-df = pd.read_csv("data/processed/all_tweets_clean.csv")
-analyzer = SentimentAnalyzer()
-
-df["sentiment"] = df["clean_text"].apply(analyzer.predict)
-daily = df.groupby(["date", "candidate"])["sentiment"].mean()
-print(daily.head())
+def analyze_sentiment(texts, batch_size=64):
+    """
+    Analyzes sentiment of tweets in batches.
+    
+    Args:
+        texts: pandas Series of tweets
+        batch_size: number of tweets to process simultaneously (default: 64)
+    
+    Returns:
+        list: Dictionaries with 'label' and 'score' for each tweet
+    """
+    results = []
+    texts = texts.fillna('').tolist()
+    
+    for i in tqdm(range(0, len(texts), batch_size)):
+        batch = texts[i:i + batch_size]
+        preds = model.pipeline(batch)
+        results.extend(preds)
+    
+    return results
 ```
+
+**Key Features:**
+- **GPU optimization**: Gradient disabled for faster inference
+- **Batch processing**: Efficient memory usage
+- **NaN handling**: Automatic replacement of missing values
+
+## Output
+
+Each tweet receives:
+- **sentiment**: Label (`POSITIVE`, `NEGATIVE`, `NEUTRAL`)
+- **score**: Confidence score (0-1)
+
+## Configuration
+
+**Batch Size Recommendations:**
+- CPU: 16-32
+- GPU (8GB): 64-128
+- GPU (16GB+): 128-256
+
 
 ##  Key Visualizations
 
-The project includes several visualizations, with at least one central, relevant plot.
-
-### Example: Average sentiment per day and per candidate
-
-- X‑axis: date  
-- Y‑axis: average sentiment  
-- One line per candidate
-
-```markdown
-
-```
-
-This figure shows how Twitter sentiment evolves over the campaign for each candidate.
-
-Other possible plots:
-
-- Barplot of top hashtags  
-- Distribution of tweet lengths  
-- Barplot of the most active users
-
-> (Bonus) Add a screenshot of the sentiment‑over‑time chart.
-
----
+The part includes two types of sentiment visualization.
 
 ## 4. User Analysis
 
@@ -593,24 +559,6 @@ Other possible plots:
 - Identifies most active accounts (number of tweets / retweets)  
 - Computes simple metrics (followers, friends, etc., when available)  
 - Can filter by candidate or hashtag
-
-**Associated notebook**
-
-- `notebooks/04_users.ipynb`
-
-**Example**
-
-```python
-import pandas as pd
-from src.users import top_active_users
-
-df = pd.read_csv("data/processed/all_tweets_clean.csv")
-top10 = top_active_users(df, n=10)
-print(top10)
-```
-
-> (Bonus) Add a screenshot of the table or a barplot of the top 10 users.
-
 ---
 
 ## 5. Trump vs Biden Comparison
@@ -620,21 +568,6 @@ print(top10)
 - Uses sentiment scores and user data to compare both candidates  
 - Proportion of negative / neutral / positive tweets per candidate  
 - Visual difference in emotional intensity (e.g. mean sentiment over time, distributions)
-
-**Associated notebook**
-
-- `notebooks/02_compare.ipynb` (or equivalent)
-
-**Example**
-
-```python
-import pandas as pd
-
-df = pd.read_csv("data/processed/all_tweets_clean.csv")
-by_candidate = df.groupby("candidate")["sentiment"].agg(["mean", "median", "count"])
-print(by_candidate)
-```
-
 ---
 
 ##  Quick Steps
@@ -683,19 +616,7 @@ python -m venv .venv
 # 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. Clean tweets
-python -m src.users \
-    --input data/raw/all_tweets.csv \
-    --output data/processed/all_tweets_clean.csv
-
-# 4. Compute sentiment
-python -m src.sentiment \
-    --input data/processed/all_tweets_clean.csv \
-    --output outputs/sentiment_by_day.csv
-```
-
-Then open notebooks (for example `notebooks/03_sentiment.ipynb`) to generate figures and explore results.
-
+# 3. Run all
 ---
 
 ## Contributors
@@ -711,3 +632,4 @@ Then open notebooks (for example `notebooks/03_sentiment.ipynb`) to generate fig
 Project developed as part of a course.  
 For educational use only.
 ```
+Last update 13-02-2026
