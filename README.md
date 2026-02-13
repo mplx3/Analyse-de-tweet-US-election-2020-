@@ -55,6 +55,19 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```bash
 pip install -r requirements.txt
 ```
+ ### Dataset Notice (Important)
+
+⚠️ The dataset is not included in this repository due to its large size.
+
+To run the project, you must:
+
+Create a data/ directory at the root of the project
+
+Add the cleaned CSV files:
+
+trump_nort.csv
+
+biden_nort.csv
 
 ## Project Structure
 ```bash
@@ -76,6 +89,15 @@ comp_trump_biden/
 │
 ├── requirements.txt
 └── README.md
+```
+### Results Directory
+
+📊 The results/ directory is generated automatically when running the project.
+
+If it does not exist, please create it manually:
+
+```bash
+mkdir results
 ```
 
 ## How to Run
