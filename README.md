@@ -1,7 +1,5 @@
-Here is your `README.md` translated to English and slightly cleaned up, keeping your structure and project meaning.
-
 ```markdown
-# 🇺🇸 US 2020 Election Twitter Analysis
+# US 2020 Election Twitter Analysis
 
 This project analyzes tweets related to the 2020 US presidential election in order to study:
 
@@ -536,7 +534,7 @@ Despite these limitations, the geographic analysis provides valuable insight int
 
 **Summary**
 
-- Uses a sentiment library/model (e.g. VADER or HuggingFace)  
+- Uses the sentiment analysis RoBERTa 
 - Computes a sentiment score for each tweet  
 - Aggregates sentiment per day and per candidate
 
@@ -641,10 +639,11 @@ print(by_candidate)
 
 ##  Quick Steps
 
-1. Run `notebooks/01_load_clean_separate.ipynb` → produces `data/interim/trump_all.csv`, `trump_nort.csv`, `biden_all.csv`, `biden_nort.csv`.  
-2. Run `notebooks/03_sentiment.ipynb` → computes sentiment with VADER (or similar) and saves figures.  
-3. Run `notebooks/04_users.ipynb` → produces user tables and plots.  
-4. Run geographic and comparison notebooks for maps and Trump/Biden comparison.
+1. Run Part 2 of `main.ipynb` → produces `data/clean/trump_clean.csv`, `data/clean/biden_clean.csv` and saves figures.   
+2. Run Part 3 of `main.ipynb` → computes sentiment with R.O.B.E.R.T.A  → produces `data/analysed/sentiment_summary.csv`, `data/analysed/tweets_with_sentiment.csv` and saves figures.  
+3. Run Part 4 of `main.ipynb` → produces voters representation map.  
+4. Run Part 5 of `main.ipynb` for Trump/Biden comparison with plots.
+5. 4. Run Part 6 of `main.ipynb` user's influences on the campaign.
 
 ---
 
@@ -653,21 +652,20 @@ print(by_candidate)
 ```text
 .
 ├── data/
-│   ├── raw/                # Raw CSV data
-│   └── interim/            # Cleaned / enriched data
-├── notebooks/
-│   ├── 01_load_clean_separate.ipynb
-│   ├── 02_eda.ipynb
-│   ├── 03_sentiment.ipynb
-│   ├── 04_users.ipynb
-│   └── 05_topics.ipynb
-├── outputs/
-│   ├── figures/            # Saved plots
-│   └── tables/             # Exported CSV tables
+│   ├── raw/                   # Raw CSV data
+│   ├── clean/                 # Cleaned CSV data
+│   └── analysed/              # Enriched data
+├── outputs/                   # Generated images
 ├── src/
-│   ├── utils_text.py       # Text preprocessing functions
-│   ├── sentiment.py        # Sentiment analysis utilities
-│   └── users.py            # User analysis utilities
+│   ├── main.ipynb                # The main projet code
+│   ├── visualization.py       # Comparison plots functions
+│   ├── utils_text.py          # Text preprocessing functions
+│   ├── sentiment_analysis.py  # Sentiment analysis utilities
+│   ├── sentiment_model.py     # Model
+│   ├── polytical_labeler.py     # Model 
+│   ├── polytical_visualizer.py     # Model 
+│   ├── data_loader.py         # Data loading functions
+│   └── geography_analysis.py  # geography analysis utilities
 ├── quick_test.py           # Minimal test script
 ├── requirements.txt
 └── README.md
@@ -701,12 +699,11 @@ Then open notebooks (for example `notebooks/03_sentiment.ipynb`) to generate fig
 ---
 
 ## Contributors
-
-- Marie – <your feature>  
-- Danielle Keune – data cleaning  
-- Sandrine Bodio –  Geographic analysis, object-oriented refactoring, and interactive mapping
-- Tonye Kaptue – <your feature>  
-- Silvio – <your feature>  
+- Marie-Pauline WAGUE – Data completion and Sentiment analysis 
+- Danielle Keune – Data Cleaning 
+- Sandrine Bodjio – Geographic analysis 
+- Tonye Kaptue – Users Analysis
+- Silvio – Candidates Comparison
 ---
 
 ##  License
